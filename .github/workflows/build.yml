@@ -19,18 +19,31 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
+
+    - name: Setup Android SDK Environment
+      uses: android-actions/setup-android@v3
+
+    - name: Initialize Local Android Directory Structure
+      run: |
+        mkdir -p app/src/main/res/layout
+        mkdir -p app/src/main/java/com/vx/launcher
+        mv activity_splash.xml app/src/main/res/layout/ || true
+        mv MainActivity.java app/src/main/java/com/vx/launcher/ || true
+        mv ZyronModStoreCore.java app/src/main/java/com/vx/launcher/ || true
+        mv AndroidManifest.xml app/src/main/ || true
+        mv build.gradle app/ || true
 
     - name: Grant Execute Permissions for Builder
-      run: chmod +x gradlew || true
+      run: |
+        chmod +x gradlew || true
+        gradle wrapper || true
 
     - name: Compile and Build APK Android Application
-      run: ./gradlew assembleDebug || echo "No gradle project yet"
+      run: ./gradlew assembleDebug --stacktrace
 
     - name: Upload Finished Production APK
       uses: actions/upload-artifact@v4
       with:
         name: VX-Launcher-Artifact
-        path: app/build/outputs/apk/debug/*.apk
-        if-no-files-found: ignore
-
+        path: "**/build/outputs/apk/debug/*.apk"
+        if-no-files-found: warn

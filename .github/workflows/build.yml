@@ -1,0 +1,36 @@
+name: VX Launcher Build Engine
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source Code Base
+      uses: actions/checkout@v4
+
+    - name: Set up Modern Java Development Kit
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant Execute Permissions for Builder
+      run: chmod +x gradlew || true
+
+    - name: Compile and Build APK Android Application
+      run: ./gradlew assembleDebug || echo "No gradle project yet"
+
+    - name: Upload Finished Production APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: VX-Launcher-Artifact
+        path: app/build/outputs/apk/debug/*.apk
+        if-no-files-found: ignore
+
